@@ -1,4 +1,19 @@
-﻿【2016/03/24】初版
+﻿【2016/04/11】NodeJS+selenium-webdriver版
+
+■NodeJSとselenium-webdriverを設定した環境用のスクリプトを作成
+  ・ファイル名：tepco-power-usage
+  
+■簡単な説明(上記ファイルより抜粋)
+  selenium-webdriverを使って、でんき家計簿の使用量グラフの
+  時間別グラフから、使用量を取得するためのスクリプトです。
+  利用に際し、NodeJS、selenium-webdriverを設定した環境が必要です。
+  これらが整った環境において、下記コマンドで実行開始願います。
+    node tepco-power-usage.js
+  
+  ・Firefoxブラウザを使いますので事前インストール願います。
+  ・利用前に、でんき家計簿のIDとパスワードを下記に追記願います。
+
+【2016/03/24】初版
 
 WEB画面から電力使用量を抜き出すスクリプトを作成
 
