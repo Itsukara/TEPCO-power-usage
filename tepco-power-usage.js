@@ -83,7 +83,7 @@ function extract_loop() {
 function extract_power_usage() {
 // 電力使用量の取り出し
   var dkhead = document.head.children
-  var dkscript = Array.prototype.slice.call(dkhead, -3,-2)[0]
+  var dkscript = Array.prototype.slice.call(dkhead, -6,-5)[0]
   var dkscripttxt = dkscript.innerText
   var itemptn = /var items = \[([^\]]+])/
   var powertxt = dkscripttxt.match(itemptn)[1]
