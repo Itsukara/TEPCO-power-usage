@@ -1,4 +1,11 @@
-﻿【2016/04/11】NodeJS+selenium-webdriver版
+﻿【2016/08/01】機能強化：TEPCO Web画面デザイン変更への柔軟な対応
+■TEPCO Web画面デザインの変更に対応
+  ・TEPCO Web画面で電力情報が含まれる部分が多少変更された。
+  ・head直下の要素である点は変わらないが、順番が変わった。
+  ・今後更に順番が変わっても対応できるように修正。
+  ・修正ファイル： tepco-power-usage.js
+
+【2016/04/11】NodeJS+selenium-webdriver版
 
 ■NodeJSとselenium-webdriverを設定した環境用のスクリプトを作成
   ・ファイル名：tepco-power-usage

@@ -83,11 +83,21 @@ function extract_loop() {
 function extract_power_usage() {
 // 電力使用量の取り出し
   var dkhead = document.head.children
-  var dkscript = Array.prototype.slice.call(dkhead, -6,-5)[0]
-  var dkscripttxt = dkscript.innerText
   var itemptn = /var items = \[([^\]]+])/
-  var powertxt = dkscripttxt.match(itemptn)[1]
-  if (powertxt === '["日次", 0]') {
+
+  var powertxt = null
+  for (var i = dkhead.length - 1; i >= 0; i--) {
+    var dkscripttxt = dkhead[i].innerText
+    var powermatch  = dkscripttxt.match(itemptn)
+    if (powermatch) {
+      powertxt = powermatch[1]
+      break
+    }
+  }
+
+  if (!powertxt) {
+    return "TEPCOのWebのデザインが変更されたため、未対応です。"
+  } else if (powertxt === '["日次", 0]') {
     return ""
   }
   var powerdata = eval(powertxt).slice(1,49)
