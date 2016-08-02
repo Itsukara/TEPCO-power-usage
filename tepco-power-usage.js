@@ -96,7 +96,8 @@ function extract_power_usage() {
   }
 
   if (!powertxt) {
-    return "TEPCOのWebのデザインが変更されたため、未対応です。"
+    alert("TEPCOのWebのデザインが変更されたため、未対応です。")
+    return """
   } else if (powertxt === '["日次", 0]') {
     return ""
   }
