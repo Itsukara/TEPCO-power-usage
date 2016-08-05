@@ -46,8 +46,10 @@ var driver = new webdriver.Builder()
     .forBrowser('firefox')
     .build();
 
+driver.manage().timeouts().implicitlyWait(10000)
+
 var baseUrl = "https://www.kakeibo.tepco.co.jp/";
-driver.get(baseUrl + "/dk/aut/login/");
+driver.get(baseUrl);
 
 driver.findElement(By.id("idId")).clear();
 driver.findElement(By.id("idId")).sendKeys(ID);
