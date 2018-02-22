@@ -12,7 +12,11 @@
     npm install selenium-webdriver -g
     
   ・Firefoxブラウザを使いますので事前インストール願います。
- 
+  
+  ・下記サイトから"geckodriver-v0.19.1-win64.zip"をダウンロードして解凍し、
+    解凍後フォルダ中のgeckodriver.exeを本スクリプトと同じフォルダに置きます。
+    https://github.com/mozilla/geckodriver/releases
+    
   ・利用前に、でんき家計簿のIDとパスワードを下記に追記願います。
 */
 
@@ -21,11 +25,14 @@ var ID="";
 var PASS = "";
 
 // 「前日」クリック後のブラウザ画面の更新待ち時間(必要に応じて調整願います)
-var waitms = 1000
+var waitms = 2000
 
 // 一部だけのデータを取り出したいとき、下記を変更することで、
 // 本日から遡って、下記の日付までのデータのみを取得します
-var firstdate = "2015/01/01"
+var firstdate = "2016/04/19"
+
+var ID="";
+var PASS = "";
 
 console.log("");
 if (ID === "" || PASS === "") {
@@ -46,23 +53,32 @@ var driver = new webdriver.Builder()
     .forBrowser('firefox')
     .build();
 
-driver.manage().timeouts().implicitlyWait(10000)
+driver.manage().setTimeouts({script: 2000, pageLoad: 5000, implicit: 2000})
 
 var baseUrl = "https://www.kakeibo.tepco.co.jp/";
-driver.get(baseUrl);
-
-driver.findElement(By.id("idId")).clear();
-driver.findElement(By.id("idId")).sendKeys(ID);
-driver.findElement(By.id("idPassword")).clear();
-driver.findElement(By.id("idPassword")).sendKeys(PASS);
-driver.findElement(By.id("idLogin")).click();
-driver.findElement(By.id("idNotEmptyImg_contents01.jpg")).click();
-
-driver.findElement(By.id("bt_time_view.jpg")).click();
-
-
 var allpowerdatatxt = ""
-extract_loop()
+
+driver.get(baseUrl + "/dk/aut/login/").then(function() {
+    driver.wait(until.elementLocated(By.id("idId")), 100).then(step1);
+});
+
+function step1() {
+    driver.findElement(By.id("idId")).sendKeys(ID).then(function() {
+        driver.findElement(By.id("idPassword")).sendKeys(PASS).then(function() {
+            driver.findElement(By.id("idLogin")).click().then(step2);
+        });
+    });
+}
+
+function step2() {
+    driver.wait(until.elementLocated(By.id("idNotEmptyImg_contents01.jpg")), 100).then(function(elm) {
+        elm.click().then(function(elm) {
+            driver.wait(until.elementLocated(By.id("bt_time_view.jpg")), 100).then(function(elm) {
+                elm.click().then(extract_loop);
+            });
+        });
+    });
+}
 
 function extract_loop() {
   driver.executeScript(extract_power_usage, []).then(function(powerdatatxt) {
@@ -85,22 +101,11 @@ function extract_loop() {
 function extract_power_usage() {
 // 電力使用量の取り出し
   var dkhead = document.head.children
+  var dkscript = Array.prototype.slice.call(dkhead, -11,-1)[0]
+  var dkscripttxt = dkscript.innerText
   var itemptn = /var items = \[([^\]]+])/
-
-  var powertxt = null
-  for (var i = dkhead.length - 1; i >= 0; i--) {
-    var dkscripttxt = dkhead[i].innerText
-    var powermatch  = dkscripttxt.match(itemptn)
-    if (powermatch) {
-      powertxt = powermatch[1]
-      break
-    }
-  }
-
-  if (!powertxt) {
-    alert("TEPCOのWebのデザインが変更されたため、未対応です。")
-    return ""
-  } else if (powertxt === '["日次", 0]') {
+  var powertxt = dkscripttxt.match(itemptn)[1]
+  if (powertxt === '["日次", 0]') {
     return ""
   }
   var powerdata = eval(powertxt).slice(1,49)
