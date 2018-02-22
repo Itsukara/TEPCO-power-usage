@@ -28,6 +28,11 @@
     下記からダウンロードしてインストールする
       https://www.mozilla.org/ja/firefox/new/
 
+(4) geckodriver.exeのインストール
+    下記サイトから"geckodriver-v0.19.1-win64.zip"をダウンロードして解凍し、
+    解凍後フォルダ中のgeckodriver.exeを本スクリプトと同じフォルダに置きます。
+    https://github.com/mozilla/geckodriver/releases
+
 2.2 tepco-power-usage.jsの修正
 初期設定として、tepco-power-usage.jsの修正が必要です。
 (1) でんき家計簿のIDとパスワードを記載
@@ -50,11 +55,6 @@
       ※2016-06-11は日付、03-28-31.299は時間(UTC)
 
 上記で表示された情報を、Excelにペーストして、適当にグラフ化して使ってください。
-
-2.4 注意事項
-本プログラムは、Firefoxで「でんき家計簿」を表示します。
-Firefoxで「でんき家計簿」の時間別電力使用量を表示できることが必須です。
-これが可能か、事前にFirefoxで「でんき家計簿」にアクセスし確認願います。
 
 3.免責
 （LICENSE.txtから抜粋）
