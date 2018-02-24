@@ -31,9 +31,6 @@ var waitms = 2000
 // 本日から遡って、下記の日付までのデータのみを取得します
 var firstdate = "2016/04/19"
 
-var ID="";
-var PASS = "";
-
 console.log("");
 if (ID === "" || PASS === "") {
   console.log("tepco-power-usage.js中で「でんき家計簿」のIDとパスワードを記載してから実行願います。");
@@ -57,6 +54,7 @@ driver.manage().setTimeouts({script: 2000, pageLoad: 5000, implicit: 2000})
 
 var baseUrl = "https://www.kakeibo.tepco.co.jp/";
 var allpowerdatatxt = ""
+
 
 driver.get(baseUrl + "/dk/aut/login/").then(function() {
     driver.wait(until.elementLocated(By.id("idId")), 100).then(step1);
@@ -100,11 +98,9 @@ function extract_loop() {
 
 function extract_power_usage() {
 // 電力使用量の取り出し
-  var dkhead = document.head.children
-  var dkscript = Array.prototype.slice.call(dkhead, -11,-1)[0]
-  var dkscripttxt = dkscript.innerText
+  var dkheadtxt = document.head.innerText
   var itemptn = /var items = \[([^\]]+])/
-  var powertxt = dkscripttxt.match(itemptn)[1]
+  var powertxt = dkheadtxt.match(itemptn)[1]
   if (powertxt === '["日次", 0]') {
     return ""
   }
