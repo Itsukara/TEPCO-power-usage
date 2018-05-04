@@ -24,12 +24,10 @@
 var ID="";
 var PASS = "";
 
-// 「前日」クリック後のブラウザ画面の更新待ち時間(必要に応じて調整願います)
-var waitms = 2000
-
 // 一部だけのデータを取り出したいとき、下記を変更することで、
 // 本日から遡って、下記の日付までのデータのみを取得します
-var firstdate = "2016/04/19"
+var firstdate = "2016/03/14"
+
 
 console.log("");
 if (ID === "" || PASS === "") {
@@ -40,6 +38,7 @@ if (ID === "" || PASS === "") {
 function write_txt(basename, txt) {
     var fname = basename + new Date().toISOString().substr(0,23).replace(/:/g, "-") + ".txt";
     require('fs').writeFile(fname, txt);
+    console.log("*** Data written to File: " + fname)
 }
 
 var webdriver = require('selenium-webdriver'),
@@ -52,36 +51,41 @@ var driver = new webdriver.Builder()
 
 driver.manage().setTimeouts({script: 2000, pageLoad: 5000, implicit: 2000})
 
-var baseUrl = "https://www.kakeibo.tepco.co.jp/";
+var baseUrl = "https://www.kakeibo.tepco.co.jp";
 var allpowerdatatxt = ""
 
-
-driver.get(baseUrl + "/dk/aut/login/").then(function() {
-    driver.wait(until.elementLocated(By.id("idId")), 100).then(step1);
+driver.get(baseUrl + "/dk/aut/login/")
+.then(function() {
+  return driver.wait(until.elementLocated(By.id("idId")), 100)
+})
+.then(function() {
+  return driver.findElement(By.id("idId")).sendKeys(ID)
+})
+.then(function() {
+  return driver.findElement(By.id("idPassword")).sendKeys(PASS)
+})
+.then(function() {
+  return driver.findElement(By.id("idLogin")).click()
+})
+.then(function() {
+  return driver.wait(until.elementLocated(By.id("idNotEmptyImg_contents01.jpg")), 100).click()
+})
+.then(function() {
+  return driver.wait(until.elementLocated(By.id("bt_time_view.jpg")), 100).click()
+})
+.then(function() {
+  return extract_loop()
 });
 
-function step1() {
-    driver.findElement(By.id("idId")).sendKeys(ID).then(function() {
-        driver.findElement(By.id("idPassword")).sendKeys(PASS).then(function() {
-            driver.findElement(By.id("idLogin")).click().then(step2);
-        });
-    });
-}
-
-function step2() {
-    driver.wait(until.elementLocated(By.id("idNotEmptyImg_contents01.jpg")), 100).then(function(elm) {
-        elm.click().then(function(elm) {
-            driver.wait(until.elementLocated(By.id("bt_time_view.jpg")), 100).then(function(elm) {
-                elm.click().then(extract_loop);
-            });
-        });
-    });
-}
-
 function extract_loop() {
-  driver.executeScript(extract_power_usage, []).then(function(powerdatatxt) {
+  driver.wait(until.elementLocated(By.id("usage_grp")), 100)
+  .then(function() {
+    return driver.executeScript(extract_power_usage, [])
+  })
+  .then(function(powerdatatxt) {
     console.log(powerdatatxt)
     if(powerdatatxt.slice(0, 10) === firstdate) {
+      console.log("*** Data Extraction Completed")
       allpowerdatatxt += powerdatatxt + "\n"
       powerdatatxt = ""
     }
@@ -91,7 +95,8 @@ function extract_loop() {
       write_txt("TPU-", allpowerdatatxt)
     } else {
       allpowerdatatxt += powerdatatxt + "\n"
-      setTimeout(extract_loop, waitms)
+      driver.findElement(By.id("doPrevious")).click()
+      .then(extract_loop)
     }
   });
 }
@@ -101,7 +106,7 @@ function extract_power_usage() {
   var dkheadtxt = document.head.innerText
   var itemptn = /var items = \[([^\]]+])/
   var powertxt = dkheadtxt.match(itemptn)[1]
-  if (powertxt === '["日次", 0]') {
+  if (powertxt === '["日次", 0]' || document.getElementById("doPrevious") === null) {
     return ""
   }
   var powerdata = eval(powertxt).slice(1,49)
@@ -113,9 +118,5 @@ function extract_power_usage() {
   // リターン値
   powerdata.unshift(pdatetxt)
   var powerdatatxt = powerdata.join(",")
-
-  // 前日をクリック
-  doPrevious.click()
-  
   return powerdatatxt
 }
